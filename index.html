@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector NFC</title>
+</head>
+<body>
+    <h1>Lector NFC en la Web</h1>
+    <button id="readButton">Leer tarjeta NFC</button>
+    <p id="output"></p>
+
+    <script>
+        // Verificar si NFC está disponible en el navegador
+        if ('NFCReader' in window) {
+            const output = document.getElementById('output');
+            const nfcReader = new NFCReader();
+
+            document.getElementById('readButton').addEventListener('click', async () => {
+                try {
+                    await nfcReader.scan();
+                    output.textContent = "Esperando tarjeta NFC...";
+                    
+                    nfcReader.onreading = event => {
+                        const message = event.message;
+                        message.records.forEach(record => {
+                            let textDecoder = new TextDecoder();
+                            let data = textDecoder.decode(record.data);
+                            output.textContent = "Datos leídos: " + data;
+                        });
+                    };
+                    
+                    nfcReader.onerror = event => {
+                        output.textContent = "Error al leer NFC: " + event.error;
+                    };
+                } catch (error) {
+                    output.textContent = "NFC no disponible: " + error;
+                }
+            });
+        } else {
+            document.getElementById('output').textContent = "NFC no es compatible en este navegador.";
+        }
+    </script>
+</body>
+</html>
